@@ -1,6 +1,10 @@
 package com.yuseob.chaenggimdol.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasStateDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.yuseob.chaenggimdol.domain.session.CheckSessionItem
@@ -38,5 +42,41 @@ class SessionScreenTest {
 
         compose.onNodeWithText("휴대폰").assertIsDisplayed()
         compose.onNodeWithText("다 챙겼어요").assertIsDisplayed()
+    }
+
+    @Test
+    fun itemPrimaryAndNotApplicableActionsAreSeparatedForAccessibility() {
+        compose.setContent {
+            SessionScreen(
+                state = SessionUiState(
+                    sessionId = 1,
+                    items = listOf(
+                        CheckSessionItem(
+                            itemId = 1,
+                            name = "휴대폰",
+                            status = CheckStatus.Unchecked,
+                        ),
+                    ),
+                ),
+                onTogglePacked = {},
+                onNotApplicable = {},
+                onRequestComplete = {},
+                onDismissIncomplete = {},
+                onConfirmComplete = {},
+            )
+        }
+
+        compose
+            .onNode(
+                hasText("휴대폰") and
+                    hasStateDescription("미확인") and
+                    hasContentDescription("휴대폰 챙김 상태 변경"),
+            )
+            .assertIsDisplayed()
+            .assertHasClickAction()
+        compose
+            .onNode(hasContentDescription("휴대폰 해당 없음"))
+            .assertIsDisplayed()
+            .assertHasClickAction()
     }
 }

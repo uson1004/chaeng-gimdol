@@ -9,10 +9,14 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +27,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,6 +48,10 @@ import com.yuseob.chaenggimdol.ui.items.ItemsScreen
 import com.yuseob.chaenggimdol.ui.onboarding.OnboardingScreen
 import com.yuseob.chaenggimdol.ui.session.SessionScreen
 import com.yuseob.chaenggimdol.ui.settings.SettingsScreen
+import com.yuseob.chaenggimdol.ui.theme.Charcoal
+import com.yuseob.chaenggimdol.ui.theme.DeepLilac
+import com.yuseob.chaenggimdol.ui.theme.LilacContainer
+import com.yuseob.chaenggimdol.ui.theme.WarmIvory
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -158,29 +169,69 @@ private fun TopLevelScaffold(
     onSelect: (AppRoute) -> Unit,
     content: @Composable () -> Unit,
 ) {
-    val destinations = listOf(
-        AppRoute.Home to "오늘",
-        AppRoute.Items to "내 물건",
-        AppRoute.Settings to "설정",
-    )
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                destinations.forEach { (route, label) ->
-                    NavigationBarItem(
-                        selected = selected == route,
-                        onClick = { onSelect(route) },
-                        icon = { Text("●") },
-                        label = { Text(label) },
-                    )
-                }
-            }
+            TopLevelNavigationBar(
+                selected = selected,
+                onSelect = onSelect,
+            )
         },
     ) { padding ->
         Box(Modifier.padding(padding)) {
             content()
         }
     }
+}
+
+@Composable
+internal fun TopLevelNavigationBar(
+    selected: AppRoute,
+    onSelect: (AppRoute) -> Unit,
+) {
+    val destinations = listOf(
+        AppRoute.Home to "오늘",
+        AppRoute.Items to "내 물건",
+        AppRoute.Settings to "설정",
+    )
+    NavigationBar(
+        containerColor = WarmIvory,
+    ) {
+        destinations.forEach { (route, label) ->
+            val selectedItem = selected == route
+            NavigationBarItem(
+                selected = selectedItem,
+                onClick = { onSelect(route) },
+                icon = {
+                    NavigationDot(selected = selectedItem)
+                },
+                label = { Text(label) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = DeepLilac,
+                    selectedTextColor = DeepLilac,
+                    indicatorColor = LilacContainer,
+                    unselectedIconColor = Charcoal.copy(alpha = 0.72f),
+                    unselectedTextColor = Charcoal.copy(alpha = 0.72f),
+                ),
+            )
+        }
+    }
+}
+
+@Composable
+private fun NavigationDot(selected: Boolean) {
+    Box(
+        modifier = Modifier
+            .clearAndSetSemantics {}
+            .size(if (selected) 12.dp else 8.dp)
+            .clip(CircleShape)
+            .background(
+                if (selected) {
+                    DeepLilac
+                } else {
+                    Charcoal.copy(alpha = 0.72f)
+                },
+            ),
+    )
 }
 
 @Composable

@@ -11,6 +11,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -68,6 +69,9 @@ fun SettingsScreen(
         OutlinedButton(
             onClick = onOpenNotificationSettings,
             modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.secondary,
+            ),
         ) {
             Text("알림 설정 열기")
         }
@@ -79,11 +83,11 @@ fun SettingsScreen(
         TextButton(
             onClick = onRequestDelete,
             modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.colorScheme.error,
+            ),
         ) {
-            Text(
-                text = "내 데이터 모두 삭제",
-                color = MaterialTheme.colorScheme.error,
-            )
+            Text("내 데이터 모두 삭제")
         }
     }
 
@@ -93,12 +97,22 @@ fun SettingsScreen(
             title = { Text("정말 삭제할까요?") },
             text = { Text("등록한 물건과 챙김 기록이 모두 사라져요.") },
             confirmButton = {
-                TextButton(onClick = onConfirmDelete) {
+                TextButton(
+                    onClick = onConfirmDelete,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) {
                     Text("삭제")
                 }
             },
             dismissButton = {
-                TextButton(onClick = onDismissDelete) {
+                TextButton(
+                    onClick = onDismissDelete,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                ) {
                     Text("취소")
                 }
             },

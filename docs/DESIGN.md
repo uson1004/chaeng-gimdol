@@ -18,7 +18,7 @@ Signal Buddy는 `어반 시그널 65% + 다정한 수호돌 35%` 조합입니다
 
 ## 타이포그래피와 간격
 
-- Display: 30sp, 900
+- Display: 30sp, 800~900
 - Title: 24sp, 800~900
 - Section: 18sp, 800
 - Body: 16sp, 500~700
@@ -61,4 +61,3 @@ Phase 1 하단 내비게이션은 다음 세 항목으로 고정합니다.
 - 감지 결과를 확정 사실로 표현하지 않고 `이동한 것으로 보여요`라고 안내합니다.
 
 전체 승인 스펙: `/Users/yuseob/Documents/life-signal-prds/docs/superpowers/specs/2026-06-24-chaenggimdol-signal-buddy-design.md`
-

@@ -9,7 +9,7 @@ val AppTypography = Typography(
     displaySmall = TextStyle(
         fontSize = 30.sp,
         lineHeight = 36.sp,
-        fontWeight = FontWeight.Black,
+        fontWeight = FontWeight.ExtraBold,
     ),
     headlineSmall = TextStyle(
         fontSize = 24.sp,
@@ -22,6 +22,11 @@ val AppTypography = Typography(
         fontWeight = FontWeight.ExtraBold,
     ),
     bodyLarge = TextStyle(
+        fontSize = 16.sp,
+        lineHeight = 23.sp,
+        fontWeight = FontWeight.Medium,
+    ),
+    bodyMedium = TextStyle(
         fontSize = 16.sp,
         lineHeight = 23.sp,
         fontWeight = FontWeight.Medium,

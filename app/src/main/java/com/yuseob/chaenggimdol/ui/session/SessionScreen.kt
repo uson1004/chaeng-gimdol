@@ -2,16 +2,25 @@ package com.yuseob.chaenggimdol.ui.session
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ListItem
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
@@ -52,26 +61,48 @@ fun SessionScreen(
                     CheckStatus.Packed -> "챙김"
                     CheckStatus.NotApplicable -> "해당 없음"
                 }
-                ListItem(
-                    headlineContent = { Text(item.name) },
-                    supportingContent = { Text(statusLabel) },
-                    trailingContent = {
-                        TextButton(
-                            onClick = {
-                                onNotApplicable(item.itemId)
-                            },
-                        ) {
-                            Text("해당 없음")
-                        }
-                    },
+                Row(
                     modifier = Modifier
-                        .semantics(mergeDescendants = true) {
-                            stateDescription = statusLabel
-                        }
-                        .clickable {
-                            onTogglePacked(item.itemId)
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 56.dp)
+                            .semantics(mergeDescendants = true) {
+                                contentDescription = "${item.name} 챙김 상태 변경"
+                                stateDescription = statusLabel
+                                role = Role.Button
+                            }
+                            .clickable {
+                                onTogglePacked(item.itemId)
+                            }
+                            .padding(vertical = 8.dp),
+                    ) {
+                        Text(item.name)
+                        Text(statusLabel)
+                    }
+                    TextButton(
+                        onClick = {
+                            onNotApplicable(item.itemId)
                         },
-                )
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.secondary,
+                        ),
+                        modifier = Modifier
+                            .heightIn(min = 48.dp)
+                            .semantics {
+                                contentDescription = "${item.name} 해당 없음"
+                            },
+                    ) {
+                        Text(
+                            text = "해당 없음",
+                            modifier = Modifier.clearAndSetSemantics {},
+                        )
+                    }
+                }
             }
         }
         SignalButton(
@@ -87,12 +118,22 @@ fun SessionScreen(
                 Text("확인하지 않은 물건이 ${count}개 있어요")
             },
             confirmButton = {
-                TextButton(onClick = onConfirmComplete) {
+                TextButton(
+                    onClick = onConfirmComplete,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                ) {
                     Text("그대로 완료")
                 }
             },
             dismissButton = {
-                TextButton(onClick = onDismissIncomplete) {
+                TextButton(
+                    onClick = onDismissIncomplete,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                ) {
                     Text("계속 확인")
                 }
             },
