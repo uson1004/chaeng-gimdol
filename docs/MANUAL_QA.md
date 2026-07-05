@@ -7,9 +7,22 @@
 | API 26 emulator | 미실행 | 현재 로컬 SDK에 시스템 이미지 없음 |
 | API 33 emulator | 미실행 | 현재 로컬 SDK에 시스템 이미지 없음 |
 | API 36 emulator/device | 미실행 | 플랫폼만 설치되어 있고 시스템 이미지 없음 |
-| API 37 Pixel 10 Pro AVD | 통과 | 자동 UI 테스트 15건, 온보딩·홈 시각 확인 |
+| API 37 Pixel 10 Pro AVD | 부분 통과 | 자동 UI 테스트 16건, 위치 FGS/알림 ADB 대체 검증 |
 
 API 26·33·36 행은 해당 시스템 이미지를 준비한 뒤 출시 전에 실행해야 합니다.
+
+## 2026-07-05 AVD 검증 증거
+
+- 대상: `sdk_gphone16k_arm64`, Android API 37 / Android 17, `emulator-5554`
+- 커밋: `3225b50`
+- 권한: `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `POST_NOTIFICATIONS` 모두 granted
+- 자동 검증: `testDebugUnitTest`, `lintDebug`, `assembleDebug`, `connectedDebugAndroidTest` 통과
+- 위치 FGS 시작: 앱 UID에서 `LocationTrackingService` `ACTION_START` 실행
+- 서비스 덤프: `isForeground=true`, `foregroundId=1001`, `types=0x00000008`, `startCommandResult=3`
+- 알림 덤프: `챙김 모드가 켜져 있어요`, `이동을 감지하는 동안 수동 체크도 계속 사용할 수 있어요.`
+- 백그라운드 유지: 홈 이동 + 화면 꺼짐 12초 후에도 서비스와 tracking 알림 유지
+- 중지 검증: `ACTION_STOP` 후 `dumpsys activity services com.yuseob.chaenggimdol` 결과 `(nothing)`, tracking 알림 없음
+- 미검증: 실제 실외 이동, 10분 경과 후 100m 초과 알림, OEM 배터리 제한
 
 ## 핵심 흐름
 
@@ -18,7 +31,7 @@ API 26·33·36 행은 해당 시스템 이미지를 준비한 뒤 출시 전에 
 - [ ] 홈에서 한 번의 탭으로 수동 세션을 시작한다.
 - [ ] 물품을 `미확인`, `챙김`, `해당 없음`으로 구분할 수 있다.
 - [ ] 미확인 물품을 남기고 완료하면 확인 대화상자가 열린다.
-- [ ] 완료하면 위치 포그라운드 서비스와 알림이 제거된다.
+- [x] 완료하면 위치 포그라운드 서비스와 알림이 제거된다. AVD에서 `ACTION_STOP` 대체 검증.
 - [ ] 앱을 종료하고 다시 열어도 진행 중 세션에 `챙김 계속하기`로 복귀한다.
 
 ## 권한
@@ -31,7 +44,7 @@ API 26·33·36 행은 해당 시스템 이미지를 준비한 뒤 출시 전에 
 
 ## 위치와 알림
 
-- [ ] 위치 감지 중 포그라운드 알림이 보인다.
+- [x] 위치 감지 중 포그라운드 알림이 보인다. AVD에서 foreground location service와 알림 덤프 확인.
 - [ ] 세션 시작 10분 전에는 이동 알림이 오지 않는다.
 - [ ] 시작점에서 100m 이하 이동에는 알림이 오지 않는다.
 - [ ] 정확도 50m 초과 위치는 이탈로 판단하지 않는다.
