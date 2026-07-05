@@ -33,6 +33,8 @@ class AndroidReminderNotifier(
             context,
             REMINDER_CHANNEL_ID,
         ).setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentTitle("잠깐, 놓고 가는 물건 없나요?")
             .setContentText(
                 "이동한 것으로 보여요. " +

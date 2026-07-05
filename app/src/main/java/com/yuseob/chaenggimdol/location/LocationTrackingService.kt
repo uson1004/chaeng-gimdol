@@ -7,11 +7,13 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.location.Location
 import android.os.IBinder
 import android.os.SystemClock
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -100,6 +102,10 @@ class LocationTrackingService : Service() {
                     stopSelf()
                     return START_NOT_STICKY
                 }
+                if (!hasLocationPermission()) {
+                    stopSelf()
+                    return START_NOT_STICKY
+                }
                 sessionId = requestedSessionId
                 if (trackingActive) {
                     locationClient.removeLocationUpdates(callback)
@@ -108,23 +114,27 @@ class LocationTrackingService : Service() {
                 reminderSent = false
                 startLocation = null
                 startedElapsedRealtime = SystemClock.elapsedRealtime()
-                startForeground(
-                    TRACKING_NOTIFICATION_ID,
-                    trackingNotification(),
-                )
+                try {
+                    ServiceCompat.startForeground(
+                        this,
+                        TRACKING_NOTIFICATION_ID,
+                        trackingNotification(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION,
+                    )
+                } catch (_: SecurityException) {
+                    stopSelf()
+                    return START_NOT_STICKY
+                }
                 startTracking()
+                return START_REDELIVER_INTENT
             }
+            else -> return START_NOT_STICKY
         }
         return START_NOT_STICKY
     }
 
     @SuppressLint("MissingPermission")
     private fun startTracking() {
-        if (!hasLocationPermission()) {
-            stopTracking()
-            return
-        }
-
         try {
             locationClient.getCurrentLocation(
                 Priority.PRIORITY_HIGH_ACCURACY,
@@ -207,12 +217,18 @@ class LocationTrackingService : Service() {
             this,
             TRACKING_CHANNEL_ID,
         ).setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setContentTitle("챙김 모드가 켜져 있어요")
             .setContentText(
                 "이동을 감지하는 동안 수동 체크도 계속 사용할 수 있어요.",
             )
             .setContentIntent(pendingIntent)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setForegroundServiceBehavior(
+                NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE,
+            )
             .build()
     }
 
@@ -221,7 +237,10 @@ class LocationTrackingService : Service() {
             locationClient.removeLocationUpdates(callback)
         }
         trackingActive = false
-        stopForeground(STOP_FOREGROUND_REMOVE)
+        ServiceCompat.stopForeground(
+            this,
+            ServiceCompat.STOP_FOREGROUND_REMOVE,
+        )
         stopSelf()
     }
 
