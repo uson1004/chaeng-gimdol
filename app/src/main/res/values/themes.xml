@@ -2,7 +2,7 @@
     <style name="Theme.ChaenggimDol" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:statusBarColor">#F1F0E8</item>
-        <item name="android:navigationBarColor">#F1F0E8</item>
+        <item name="android:statusBarColor">#EAF3DF</item>
+        <item name="android:navigationBarColor">#EAF3DF</item>
     </style>
 </resources>

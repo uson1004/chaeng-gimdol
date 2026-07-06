@@ -6,10 +6,18 @@ import org.junit.Test
 
 class ColorContrastTest {
     @Test
-    fun errorColorMeetsNormalTextContrastOnWarmIvory() {
+    fun errorColorMeetsNormalTextContrastOnSoftSage() {
         assertTrue(
-            "Error text must meet 4.5:1 contrast on Warm Ivory",
-            contrastRatio(ErrorRed, WarmIvory) >= 4.5,
+            "Error text must meet 4.5:1 contrast on Soft Sage",
+            contrastRatio(ErrorRed, SoftSage) >= 4.5,
+        )
+    }
+
+    @Test
+    fun pineTealMeetsNormalTextContrastOnSoftSage() {
+        assertTrue(
+            "Pine Teal must meet 4.5:1 contrast on Soft Sage",
+            contrastRatio(PineTeal, SoftSage) >= 4.5,
         )
     }
 
