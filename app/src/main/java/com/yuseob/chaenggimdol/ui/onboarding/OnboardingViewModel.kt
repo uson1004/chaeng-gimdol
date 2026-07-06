@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yuseob.chaenggimdol.data.settings.AppPreferencesRepository
 import com.yuseob.chaenggimdol.domain.item.SeedDefaultItemsUseCase
+import com.yuseob.chaenggimdol.domain.item.SeedItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -15,6 +16,8 @@ data class OnboardingUiState(
         "이어폰",
         "충전기",
     ),
+    val optional: Set<String> = emptySet(),
+    val hints: Map<String, String> = emptyMap(),
     val saving: Boolean = false,
     val errorMessage: String? = null,
 )
@@ -28,12 +31,37 @@ class OnboardingViewModel(
 
     fun toggle(name: String) {
         _state.update { current ->
+            val selected = if (name in current.selected) {
+                current.selected - name
+            } else {
+                current.selected + name
+            }
             current.copy(
-                selected = if (name in current.selected) {
-                    current.selected - name
+                selected = selected,
+                optional = current.optional.intersect(selected),
+                hints = current.hints.filterKeys { it in selected },
+                errorMessage = null,
+            )
+        }
+    }
+
+    fun toggleImportant(name: String) {
+        _state.update { current ->
+            current.copy(
+                optional = if (name in current.optional) {
+                    current.optional - name
                 } else {
-                    current.selected + name
+                    current.optional + name
                 },
+                errorMessage = null,
+            )
+        }
+    }
+
+    fun setHint(name: String, hint: String) {
+        _state.update { current ->
+            current.copy(
+                hints = current.hints + (name to hint),
                 errorMessage = null,
             )
         }
@@ -53,7 +81,15 @@ class OnboardingViewModel(
                 it.copy(saving = true, errorMessage = null)
             }
             runCatching {
-                seedDefaultItems(selected)
+                seedDefaultItems(
+                    selected.map { name ->
+                        SeedItem(
+                            name = name,
+                            important = name !in state.value.optional,
+                            checkHint = state.value.hints[name],
+                        )
+                    },
+                )
                 preferences.setOnboardingComplete(true)
                 preferences.setLocationTrackingEnabled(true)
             }.onSuccess {

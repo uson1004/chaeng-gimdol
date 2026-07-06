@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,6 +35,8 @@ private val templates = listOf(
 fun OnboardingScreen(
     state: OnboardingUiState,
     onToggle: (String) -> Unit,
+    onToggleImportant: (String) -> Unit = {},
+    onHintChange: (String, String) -> Unit = { _, _ -> },
     onComplete: () -> Unit,
 ) {
     Column(
@@ -64,6 +67,43 @@ fun OnboardingScreen(
                     selected = name in state.selected,
                     onClick = { onToggle(name) },
                     label = { Text(name) },
+                )
+            }
+        }
+        state.selected.forEach { name ->
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    FilterChip(
+                        selected = name !in state.optional,
+                        onClick = {
+                            if (name in state.optional) onToggleImportant(name)
+                        },
+                        label = { Text("꼭 확인") },
+                    )
+                    FilterChip(
+                        selected = name in state.optional,
+                        onClick = {
+                            if (name !in state.optional) onToggleImportant(name)
+                        },
+                        label = { Text("상황 따라") },
+                    )
+                }
+                OutlinedTextField(
+                    value = state.hints[name].orEmpty(),
+                    onValueChange = { onHintChange(name, it) },
+                    label = { Text("$name 힌트") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
                 )
             }
         }
