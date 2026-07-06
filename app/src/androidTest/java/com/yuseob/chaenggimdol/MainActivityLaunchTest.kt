@@ -16,7 +16,7 @@ class MainActivityLaunchTest {
             .fetchSemanticsNodes()
         val home = compose
             .onAllNodesWithText(
-                "오늘도 놓치는 것 없이",
+                "출발 준비 상태",
                 substring = true,
             )
             .fetchSemanticsNodes()

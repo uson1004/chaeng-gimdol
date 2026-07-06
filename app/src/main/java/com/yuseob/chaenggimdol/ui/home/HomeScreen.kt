@@ -1,21 +1,26 @@
 package com.yuseob.chaenggimdol.ui.home
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.yuseob.chaenggimdol.ui.components.BuddyMood
 import com.yuseob.chaenggimdol.ui.components.BuddyStone
 import com.yuseob.chaenggimdol.ui.components.SignalButton
+import com.yuseob.chaenggimdol.ui.components.SignalCard
+import com.yuseob.chaenggimdol.ui.components.SignalChip
 
 data class PermissionUiState(
     val locationGranted: Boolean = false,
@@ -42,39 +47,96 @@ fun HomeScreen(
             .fillMaxSize()
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         BuddyStone(
-            mood = BuddyMood.Neutral,
-            size = 112.dp,
+            mood = if (state.activeSessionId == null) BuddyMood.Neutral else BuddyMood.Attention,
+            size = 78.dp,
             decorative = true,
         )
         Text(
-            text = "오늘도 놓치는 것 없이\n가볍게 출발해요",
-            style = MaterialTheme.typography.displaySmall,
+            text = if (state.activeSessionId == null) {
+                "출발 준비 상태"
+            } else {
+                "진행 중인 챙김이 있어요"
+            },
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
         )
-        Text("챙길 물건 ${state.activeItems.size}개")
-        state.activeSessionId?.let {
-            Text("진행 중인 챙김이 있어요")
-        }
+        Text(
+            text = if (state.activeSessionId == null) {
+                "오늘 챙길 물건 ${state.activeItems.size}개"
+            } else {
+                "확인 안 한 물건을 이어서 볼 수 있어요"
+            },
+            style = MaterialTheme.typography.bodyMedium,
+        )
         state.message?.let { message ->
             Text(
                 text = message,
                 color = MaterialTheme.colorScheme.error,
             )
         }
+        SignalCard(Modifier.fillMaxWidth()) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = if (state.activeSessionId == null) "준비됨" else "계속 확인하면 돼요",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = if (state.activeSessionId == null) {
+                        "알림과 출발 감지를 사용할 수 있어요. 중요한 물건부터 빠르게 확인해요."
+                    } else {
+                        "아직 미확인인 물건을 챙김 세션에서 이어서 확인할 수 있어요."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    SignalChip(
+                        text = if (permissionState.notificationGranted) "알림 켜짐" else "알림 꺼짐",
+                        selected = permissionState.notificationGranted,
+                    )
+                    SignalChip(
+                        text = if (permissionState.locationGranted) "위치 허용" else "위치 미허용",
+                        selected = permissionState.locationGranted,
+                    )
+                    SignalChip(
+                        text = if (permissionState.locationTrackingEnabled) "감지 켜짐" else "감지 꺼짐",
+                        selected = permissionState.locationTrackingEnabled,
+                    )
+                }
+            }
+        }
+        SignalCard(Modifier.fillMaxWidth()) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = "먼저 볼 물건",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                val previewItems = state.activeItems.take(4)
+                if (previewItems.isEmpty()) {
+                    Text(
+                        text = "아직 등록된 물건이 없어요.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                } else {
+                    previewItems.chunked(2).forEach { rowItems ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            rowItems.forEach { item ->
+                                SignalChip(text = item.name)
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if (
             permissionState.locationTrackingEnabled &&
             !permissionState.locationGranted
         ) {
-            Text(
-                text = "위치 없이도 사용할 수 있어요",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 20.dp),
-            )
-            Text(
-                text = "자동 출발 알림은 꺼지지만 체크리스트는 그대로 쓸 수 있어요.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
             OutlinedButton(
                 onClick = if (permissionState.showLocationRationale) {
                     onOpenSettings
@@ -84,9 +146,7 @@ fun HomeScreen(
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = MaterialTheme.colorScheme.secondary,
                 ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
                     if (permissionState.showLocationRationale) {
@@ -111,5 +171,14 @@ fun HomeScreen(
                 else -> onStart
             },
         )
+        OutlinedButton(
+            onClick = onRegisterItems,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.secondary,
+            ),
+        ) {
+            Text("내 물건 정리")
+        }
     }
 }

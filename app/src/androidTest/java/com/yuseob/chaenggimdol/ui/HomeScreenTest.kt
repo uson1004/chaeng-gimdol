@@ -66,7 +66,7 @@ class HomeScreenTest {
         }
 
         compose
-            .onNodeWithText("위치 없이도 사용할 수 있어요")
+            .onNodeWithText("위치 미허용")
             .assertIsDisplayed()
         compose
             .onNodeWithText("수동으로 시작")
