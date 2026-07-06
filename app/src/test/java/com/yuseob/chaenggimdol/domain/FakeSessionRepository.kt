@@ -29,6 +29,8 @@ class FakeSessionRepository : SessionRepository {
                     itemId = it.id,
                     name = it.name,
                     status = CheckStatus.Unchecked,
+                    important = it.important,
+                    checkHint = it.checkHint,
                 )
             },
         )

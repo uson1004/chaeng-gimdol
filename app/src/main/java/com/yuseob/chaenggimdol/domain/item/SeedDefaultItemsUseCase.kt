@@ -3,12 +3,14 @@ package com.yuseob.chaenggimdol.domain.item
 class SeedDefaultItemsUseCase(
     private val repository: ItemRepository,
 ) {
-    suspend operator fun invoke(names: Set<String>) {
-        names.forEach { name ->
+    suspend operator fun invoke(items: List<SeedItem>) {
+        items.forEach { item ->
             repository.upsert(
                 UserItem(
-                    name = name,
-                    category = categoryFor(name),
+                    name = item.name,
+                    category = categoryFor(item.name),
+                    important = item.important,
+                    checkHint = item.checkHint?.takeIf(String::isNotBlank)?.trim(),
                 ),
             )
         }
@@ -24,3 +26,9 @@ class SeedDefaultItemsUseCase(
         else -> "other"
     }
 }
+
+data class SeedItem(
+    val name: String,
+    val important: Boolean = true,
+    val checkHint: String? = null,
+)

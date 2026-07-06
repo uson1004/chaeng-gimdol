@@ -6,4 +6,5 @@ data class UserItem(
     val category: String,
     val important: Boolean = true,
     val active: Boolean = true,
+    val checkHint: String? = null,
 )

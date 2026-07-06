@@ -13,4 +13,6 @@ data class CheckSessionItem(
     val itemId: Long,
     val name: String,
     val status: CheckStatus,
+    val important: Boolean = true,
+    val checkHint: String? = null,
 )

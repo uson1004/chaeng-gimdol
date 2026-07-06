@@ -1,6 +1,7 @@
 package com.yuseob.chaenggimdol.domain
 
 import com.yuseob.chaenggimdol.domain.item.ItemRepository
+import com.yuseob.chaenggimdol.domain.item.SeedItem
 import com.yuseob.chaenggimdol.domain.item.SeedDefaultItemsUseCase
 import com.yuseob.chaenggimdol.domain.item.UserItem
 import kotlinx.coroutines.flow.Flow
@@ -11,16 +12,32 @@ import org.junit.Test
 
 class SeedDefaultItemsUseCaseTest {
     @Test
-    fun selectedTemplatesAreSavedOnce() = runTest {
+    fun selectedTemplatesAreSavedWithCheckMetadata() = runTest {
         val repository = FakeItemRepository()
 
         SeedDefaultItemsUseCase(repository)(
-            setOf("휴대폰", "이어폰", "충전기"),
+            listOf(
+                SeedItem("휴대폰", important = true, checkHint = "가방 안"),
+                SeedItem("우산", important = false, checkHint = "  "),
+            ),
         )
 
         assertEquals(
-            listOf("휴대폰", "이어폰", "충전기"),
-            repository.saved.map { it.name },
+            listOf(
+                UserItem(
+                    name = "휴대폰",
+                    category = "phone",
+                    important = true,
+                    checkHint = "가방 안",
+                ),
+                UserItem(
+                    name = "우산",
+                    category = "umbrella",
+                    important = false,
+                    checkHint = null,
+                ),
+            ),
+            repository.saved,
         )
     }
 }
