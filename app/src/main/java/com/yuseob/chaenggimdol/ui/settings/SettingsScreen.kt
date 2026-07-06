@@ -8,10 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -19,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.yuseob.chaenggimdol.ui.components.SignalCard
+import com.yuseob.chaenggimdol.ui.components.SignalChip
 
 data class SettingsUiState(
     val locationTrackingEnabled: Boolean = false,
@@ -38,34 +39,51 @@ fun SettingsScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
             text = "설정",
-            style = MaterialTheme.typography.displaySmall,
+            style = MaterialTheme.typography.headlineSmall,
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
+        SignalCard(Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = "출발 감지",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        text = "챙김 모드를 시작한 동안만 위치를 사용해요.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Switch(
+                    checked = state.locationTrackingEnabled,
+                    onCheckedChange = onLocationTrackingChanged,
+                )
+            }
+        }
+        SignalCard(Modifier.fillMaxWidth()) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
-                    text = "출발 감지",
+                    text = "자동 알림 신뢰 상태",
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
-                    text = "위치는 챙김 모드를 시작한 동안만 사용해요.",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "알림 권한, 위치 권한, 출발 감지가 모두 켜져야 자동 출발 알림을 받을 수 있어요.",
+                    style = MaterialTheme.typography.bodySmall,
                 )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SignalChip(text = "알림 켜짐", selected = true)
+                    SignalChip(text = if (state.locationTrackingEnabled) "위치 사용" else "위치 꺼짐")
+                    SignalChip(text = "좌표 저장 안 함")
+                }
             }
-            Switch(
-                checked = state.locationTrackingEnabled,
-                onCheckedChange = onLocationTrackingChanged,
-            )
         }
-        HorizontalDivider(Modifier.padding(vertical = 20.dp))
         OutlinedButton(
             onClick = onOpenNotificationSettings,
             modifier = Modifier.fillMaxWidth(),
@@ -76,10 +94,6 @@ fun SettingsScreen(
             Text("알림 설정 열기")
         }
         Spacer(Modifier.weight(1f))
-        Text(
-            text = "좌표는 저장하지 않고, 계정이나 외부 서버를 사용하지 않아요.",
-            style = MaterialTheme.typography.bodySmall,
-        )
         TextButton(
             onClick = onRequestDelete,
             modifier = Modifier.fillMaxWidth(),

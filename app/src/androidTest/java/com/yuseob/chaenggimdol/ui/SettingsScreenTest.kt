@@ -41,7 +41,7 @@ class SettingsScreenTest {
         }
 
         compose
-            .onNodeWithText("위치는 챙김 모드를 시작한 동안만 사용해요.")
+            .onNodeWithText("챙김 모드를 시작한 동안만 위치를 사용해요.")
             .assertIsDisplayed()
         compose
             .onNodeWithText("내 데이터 모두 삭제")
