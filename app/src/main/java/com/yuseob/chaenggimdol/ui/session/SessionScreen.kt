@@ -1,6 +1,7 @@
 package com.yuseob.chaenggimdol.ui.session
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,8 @@ import com.yuseob.chaenggimdol.domain.session.CheckStatus
 import com.yuseob.chaenggimdol.ui.components.BuddyMood
 import com.yuseob.chaenggimdol.ui.components.BuddyStone
 import com.yuseob.chaenggimdol.ui.components.SignalButton
+import com.yuseob.chaenggimdol.ui.components.SignalCard
+import com.yuseob.chaenggimdol.ui.components.SignalChip
 
 @Composable
 fun SessionScreen(
@@ -42,66 +45,71 @@ fun SessionScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         BuddyStone(
             mood = BuddyMood.Attention,
-            size = 72.dp,
+            size = 58.dp,
             decorative = true,
         )
-        Text("잠깐! 놓고 가는 거 없지?")
+        Text(
+            text = "잠깐! 놓고 가는 거 없지?",
+            style = MaterialTheme.typography.headlineSmall,
+        )
+        val uncheckedCount = state.items.count { it.status == CheckStatus.Unchecked }
+        val uncheckedImportantCount = state.items.count {
+            it.important && it.status == CheckStatus.Unchecked
+        }
+        val uncheckedOptionalCount = state.items.count {
+            !it.important && it.status == CheckStatus.Unchecked
+        }
+        SignalCard(Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "${state.items.size - uncheckedCount} / ${state.items.size}개 확인",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                SignalChip(text = "미확인 ${uncheckedCount}개")
+            }
+            Text(
+                text = "꼭 확인 ${uncheckedImportantCount}개 · 상황 따라 ${uncheckedOptionalCount}개 남음",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        val importantItems = state.items.filter { it.important }
+        val optionalItems = state.items.filterNot { it.important }
         LazyColumn(
             modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(
-                items = state.items,
-                key = { item -> item.itemId },
-            ) { item ->
-                val statusLabel = when (item.status) {
-                    CheckStatus.Unchecked -> "미확인"
-                    CheckStatus.Packed -> "챙김"
-                    CheckStatus.NotApplicable -> "해당 없음"
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .heightIn(min = 56.dp)
-                            .semantics(mergeDescendants = true) {
-                                contentDescription = "${item.name} 챙김 상태 변경"
-                                stateDescription = statusLabel
-                                role = Role.Button
-                            }
-                            .clickable {
-                                onTogglePacked(item.itemId)
-                            }
-                            .padding(vertical = 8.dp),
-                    ) {
-                        Text(item.name)
-                        Text(statusLabel)
-                    }
-                    TextButton(
-                        onClick = {
-                            onNotApplicable(item.itemId)
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.secondary,
-                        ),
-                        modifier = Modifier
-                            .heightIn(min = 48.dp)
-                            .semantics {
-                                contentDescription = "${item.name} 해당 없음"
-                            },
-                    ) {
-                        Text(
-                            text = "해당 없음",
-                            modifier = Modifier.clearAndSetSemantics {},
-                        )
-                    }
+            checkGroup(
+                title = "꼭 확인할 것",
+                items = importantItems,
+                onTogglePacked = onTogglePacked,
+                onNotApplicable = onNotApplicable,
+            )
+            checkGroup(
+                title = "상황 따라 확인",
+                items = optionalItems,
+                onTogglePacked = onTogglePacked,
+                onNotApplicable = onNotApplicable,
+            )
+        }
+        if (uncheckedCount > 0) {
+            SignalCard(Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = "미확인 물건이 남아 있어요",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        text = "완료 전에 한 번 더 확인할 수 있게 남겨둡니다.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
             }
         }
@@ -138,5 +146,87 @@ fun SessionScreen(
                 }
             },
         )
+    }
+}
+
+private fun androidx.compose.foundation.lazy.LazyListScope.checkGroup(
+    title: String,
+    items: List<com.yuseob.chaenggimdol.domain.session.CheckSessionItem>,
+    onTogglePacked: (Long) -> Unit,
+    onNotApplicable: (Long) -> Unit,
+) {
+    if (items.isEmpty()) return
+    item(key = "$title-header") {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+        )
+    }
+    items(
+        items = items,
+        key = { item -> item.itemId },
+    ) { item ->
+        val statusLabel = when (item.status) {
+            CheckStatus.Unchecked -> "미확인"
+            CheckStatus.Packed -> "챙김"
+            CheckStatus.NotApplicable -> "해당 없음"
+        }
+        SignalCard(Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(min = 48.dp)
+                        .semantics(mergeDescendants = true) {
+                            contentDescription = "${item.name} 챙김 상태 변경"
+                            stateDescription = statusLabel
+                            role = Role.Button
+                        }
+                        .clickable {
+                            onTogglePacked(item.itemId)
+                        },
+                ) {
+                    Text(
+                        text = item.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    item.checkHint?.takeIf(String::isNotBlank)?.let { hint ->
+                        Text(
+                            text = hint,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    Text(
+                        text = statusLabel,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                SignalChip(
+                    text = statusLabel,
+                    selected = item.status == CheckStatus.Packed,
+                )
+                TextButton(
+                    onClick = {
+                        onNotApplicable(item.itemId)
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                    modifier = Modifier
+                        .heightIn(min = 48.dp)
+                        .semantics {
+                            contentDescription = "${item.name} 해당 없음"
+                        },
+                ) {
+                    Text(
+                        text = "해당 없음",
+                        modifier = Modifier.clearAndSetSemantics {},
+                    )
+                }
+            }
+        }
     }
 }

@@ -45,6 +45,41 @@ class SessionScreenTest {
     }
 
     @Test
+    fun sessionGroupsImportantItemsAndShowsHints() {
+        compose.setContent {
+            SessionScreen(
+                state = SessionUiState(
+                    sessionId = 1,
+                    items = listOf(
+                        CheckSessionItem(
+                            itemId = 1,
+                            name = "휴대폰",
+                            status = CheckStatus.Unchecked,
+                            important = true,
+                            checkHint = "가방 안",
+                        ),
+                        CheckSessionItem(
+                            itemId = 2,
+                            name = "우산",
+                            status = CheckStatus.Unchecked,
+                            important = false,
+                        ),
+                    ),
+                ),
+                onTogglePacked = {},
+                onNotApplicable = {},
+                onRequestComplete = {},
+                onDismissIncomplete = {},
+                onConfirmComplete = {},
+            )
+        }
+
+        compose.onNodeWithText("꼭 확인할 것").assertIsDisplayed()
+        compose.onNodeWithText("상황 따라 확인").assertIsDisplayed()
+        compose.onNodeWithText("가방 안").assertIsDisplayed()
+    }
+
+    @Test
     fun itemPrimaryAndNotApplicableActionsAreSeparatedForAccessibility() {
         compose.setContent {
             SessionScreen(
