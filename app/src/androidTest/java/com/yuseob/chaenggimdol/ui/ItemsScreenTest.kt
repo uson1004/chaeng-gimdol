@@ -66,4 +66,31 @@ class ItemsScreenTest {
             .onAllNodes(hasContentDescription("휴대폰 삭제") and hasText("삭제"))
             .assertCountEquals(0)
     }
+
+    @Test
+    fun itemMetadataDoesNotConfuseActiveWithImportant() {
+        compose.setContent {
+            ItemsScreen(
+                state = ItemsUiState(
+                    items = listOf(
+                        UserItem(
+                            id = 1,
+                            name = "우산",
+                            category = "umbrella",
+                            important = false,
+                            active = true,
+                            checkHint = "현관 앞",
+                        ),
+                    ),
+                ),
+                onNameChange = {},
+                onAdd = {},
+                onToggleActive = {},
+                onDelete = {},
+            )
+        }
+
+        compose.onNodeWithText("상황 따라 확인 · 사용 중").assertIsDisplayed()
+        compose.onNodeWithText("현관 앞").assertIsDisplayed()
+    }
 }

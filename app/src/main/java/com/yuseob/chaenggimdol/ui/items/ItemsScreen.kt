@@ -24,13 +24,18 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.yuseob.chaenggimdol.domain.item.UserItem
+import com.yuseob.chaenggimdol.ui.components.SignalCard
+import com.yuseob.chaenggimdol.ui.components.SignalChip
 
 @Composable
 fun ItemsScreen(
     state: ItemsUiState,
     onNameChange: (String) -> Unit,
+    onImportantChange: (Boolean) -> Unit = {},
+    onHintChange: (String) -> Unit = {},
     onAdd: () -> Unit,
     onToggleActive: (UserItem) -> Unit,
+    onToggleImportant: (UserItem) -> Unit = {},
     onDelete: (Long) -> Unit,
     onRetry: () -> Unit = {},
 ) {
@@ -38,88 +43,157 @@ fun ItemsScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
             text = "내 물건",
-            style = MaterialTheme.typography.displaySmall,
+            style = MaterialTheme.typography.headlineSmall,
         )
-        Column(
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            SignalChip(text = "매일", selected = true)
+            SignalChip(text = "업무")
+            SignalChip(text = "날씨")
+            SignalChip(text = "기타")
+        }
+        OutlinedTextField(
+            value = state.editorName,
+            onValueChange = onNameChange,
+            label = { Text("물건 이름") },
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            singleLine = true,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            OutlinedTextField(
-                value = state.editorName,
-                onValueChange = onNameChange,
-                label = { Text("물건 이름") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
+            Text("꼭 확인")
+            Switch(
+                checked = state.editorImportant,
+                onCheckedChange = onImportantChange,
+                modifier = Modifier.semantics {
+                    contentDescription = "새 물건 꼭 확인"
+                },
             )
-            Button(
-                onClick = onAdd,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 52.dp),
-            ) {
-                Text("추가하기")
-            }
+        }
+        OutlinedTextField(
+            value = state.editorCheckHint,
+            onValueChange = onHintChange,
+            label = { Text("챙김 힌트") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+        )
+        Button(
+            onClick = onAdd,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 52.dp),
+        ) {
+            Text("추가하기")
         }
         state.errorMessage?.let { message ->
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.error,
-            )
-            if (state.retryAvailable) {
-                TextButton(
-                    onClick = onRetry,
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.secondary,
-                    ),
-                ) {
-                    Text("다시 시도")
+            SignalCard(Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = message,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    if (state.retryAvailable) {
+                        TextButton(
+                            onClick = onRetry,
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = MaterialTheme.colorScheme.secondary,
+                            ),
+                        ) {
+                            Text("다시 시도")
+                        }
+                    }
                 }
             }
         }
-        LazyColumn {
+        SignalCard(Modifier.fillMaxWidth()) {
+            Text(
+                text = "매일 챙김",
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             items(
                 items = state.items,
                 key = { item -> item.id },
             ) { item ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = item.name,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 2,
-                    )
-                    Switch(
-                        checked = item.active,
-                        onCheckedChange = { onToggleActive(item) },
-                        modifier = Modifier.semantics {
-                            contentDescription = "${item.name} 챙김 사용"
-                        },
-                    )
-                    TextButton(
-                        onClick = { onDelete(item.id) },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                        ),
-                        modifier = Modifier
-                            .heightIn(min = 48.dp)
-                            .semantics {
-                                contentDescription = "${item.name} 삭제"
-                            },
+                SignalCard(Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = "삭제",
-                            modifier = Modifier.clearAndSetSemantics {},
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                text = item.name,
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = 2,
+                            )
+                            Text(
+                                text = item.metadataLabel(),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            item.checkHint?.takeIf(String::isNotBlank)?.let { hint ->
+                                Text(
+                                    text = hint,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        }
+                        TextButton(
+                            onClick = { onToggleImportant(item) },
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = MaterialTheme.colorScheme.secondary,
+                            ),
+                            modifier = Modifier
+                                .heightIn(min = 48.dp)
+                                .semantics {
+                                    contentDescription = "${item.name} 꼭 확인"
+                                },
+                        ) {
+                            Text(
+                                text = if (item.important) "꼭 확인" else "상황 따라",
+                                modifier = Modifier.clearAndSetSemantics {},
+                            )
+                        }
+                        Switch(
+                            checked = item.active,
+                            onCheckedChange = { onToggleActive(item) },
+                            modifier = Modifier.semantics {
+                                contentDescription = "${item.name} 챙김 사용"
+                            },
                         )
+                        TextButton(
+                            onClick = { onDelete(item.id) },
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error,
+                            ),
+                            modifier = Modifier
+                                .heightIn(min = 48.dp)
+                                .semantics {
+                                    contentDescription = "${item.name} 삭제"
+                                },
+                        ) {
+                            Text(
+                                text = "삭제",
+                                modifier = Modifier.clearAndSetSemantics {},
+                            )
+                        }
                     }
                 }
             }
         }
     }
+}
+
+private fun UserItem.metadataLabel(): String {
+    val importance = if (important) "꼭 확인" else "상황 따라 확인"
+    val status = if (active) "사용 중" else "쉬는 중"
+    return "$importance · $status"
 }

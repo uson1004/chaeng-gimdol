@@ -14,26 +14,40 @@ import kotlinx.coroutines.launch
 data class ItemsUiState(
     val items: List<UserItem> = emptyList(),
     val editorName: String = "",
+    val editorImportant: Boolean = true,
+    val editorCheckHint: String = "",
     val errorMessage: String? = null,
     val retryAvailable: Boolean = false,
+)
+
+private data class EditorMetadata(
+    val important: Boolean,
+    val checkHint: String,
 )
 
 class ItemsViewModel(
     private val repository: ItemRepository,
 ) : ViewModel() {
     private val editor = MutableStateFlow("")
+    private val editorImportant = MutableStateFlow(true)
+    private val editorCheckHint = MutableStateFlow("")
     private val error = MutableStateFlow<String?>(null)
     private val retryAvailable = MutableStateFlow(false)
 
     val state: StateFlow<ItemsUiState> = combine(
         repository.observeItems(),
         editor,
+        combine(editorImportant, editorCheckHint) { important, checkHint ->
+            EditorMetadata(important, checkHint)
+        },
         error,
         retryAvailable,
-    ) { items, name, message, canRetry ->
+    ) { items, name, metadata, message, canRetry ->
         ItemsUiState(
             items = items,
             editorName = name,
+            editorImportant = metadata.important,
+            editorCheckHint = metadata.checkHint,
             errorMessage = message,
             retryAvailable = canRetry,
         )
@@ -47,6 +61,14 @@ class ItemsViewModel(
         editor.value = value
         error.value = null
         retryAvailable.value = false
+    }
+
+    fun setEditorImportant(value: Boolean) {
+        editorImportant.value = value
+    }
+
+    fun setEditorCheckHint(value: String) {
+        editorCheckHint.value = value
     }
 
     fun saveEditor() {
@@ -63,10 +85,15 @@ class ItemsViewModel(
                     UserItem(
                         name = name,
                         category = "other",
+                        important = editorImportant.value,
+                        checkHint = editorCheckHint.value
+                            .takeIf(String::isNotBlank)
+                            ?.trim(),
                     ),
                 )
             }.onSuccess {
                 editor.value = ""
+                editorCheckHint.value = ""
             }.onFailure {
                 error.value = "저장하지 못했어요. 다시 시도해 주세요."
                 retryAvailable.value = true
@@ -83,6 +110,12 @@ class ItemsViewModel(
     fun toggleActive(item: UserItem) {
         viewModelScope.launch {
             repository.upsert(item.copy(active = !item.active))
+        }
+    }
+
+    fun toggleImportant(item: UserItem) {
+        viewModelScope.launch {
+            repository.upsert(item.copy(important = !item.important))
         }
     }
 
