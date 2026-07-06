@@ -72,7 +72,7 @@ class AppContainer private constructor(
                 appContext,
                 ChaenggimDatabase::class.java,
                 "chaenggimdol.db",
-            ).build()
+            ).addMigrations(ChaenggimDatabase.MIGRATION_1_2).build()
             return AppContainer(
                 database = database,
                 itemRepository = RoomItemRepository(

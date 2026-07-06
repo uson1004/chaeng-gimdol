@@ -30,6 +30,7 @@ private fun UserItemEntity.toDomain() = UserItem(
     category = category,
     important = important,
     active = active,
+    checkHint = checkHint,
 )
 
 private fun UserItem.toEntity() = UserItemEntity(
@@ -38,4 +39,5 @@ private fun UserItem.toEntity() = UserItemEntity(
     category = category,
     important = important,
     active = active,
+    checkHint = checkHint,
 )

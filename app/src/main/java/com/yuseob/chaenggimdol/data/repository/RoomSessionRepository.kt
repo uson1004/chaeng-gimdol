@@ -31,6 +31,8 @@ class RoomSessionRepository(
                     sessionId = sessionId,
                     itemId = item.id,
                     name = item.name,
+                    important = item.important,
+                    checkHint = item.checkHint,
                     status = CheckStatus.Unchecked.name,
                 )
             },
@@ -78,6 +80,8 @@ private fun SessionWithItems.toDomain() = CheckSession(
             itemId = item.itemId,
             name = item.name,
             status = CheckStatus.valueOf(item.status),
+            important = item.important,
+            checkHint = item.checkHint,
         )
     },
 )

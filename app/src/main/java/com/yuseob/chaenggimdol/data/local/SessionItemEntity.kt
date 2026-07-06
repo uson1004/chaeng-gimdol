@@ -12,5 +12,7 @@ data class SessionItemEntity(
     val sessionId: Long,
     val itemId: Long,
     val name: String,
+    val important: Boolean,
+    val checkHint: String?,
     val status: String,
 )

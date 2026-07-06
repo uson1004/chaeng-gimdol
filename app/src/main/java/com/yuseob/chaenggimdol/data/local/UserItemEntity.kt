@@ -11,4 +11,5 @@ data class UserItemEntity(
     val category: String,
     val important: Boolean,
     val active: Boolean,
+    val checkHint: String?,
 )
