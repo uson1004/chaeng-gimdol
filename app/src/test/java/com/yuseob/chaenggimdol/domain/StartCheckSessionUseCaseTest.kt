@@ -44,4 +44,21 @@ class StartCheckSessionUseCaseTest {
             session.items.map { it.checkHint },
         )
     }
+
+    @Test
+    fun sessionItemsPutImportantItemsFirst() = runTest {
+        val repository = FakeSessionRepository()
+
+        val id = StartCheckSessionUseCase(repository = repository)(
+            items = listOf(
+                UserItem(1, "우산", "umbrella", important = false, active = true),
+                UserItem(2, "휴대폰", "phone", important = true, active = true),
+            ),
+        )
+
+        assertEquals(
+            listOf("휴대폰", "우산"),
+            repository.requireSession(id).items.map { it.name },
+        )
+    }
 }
