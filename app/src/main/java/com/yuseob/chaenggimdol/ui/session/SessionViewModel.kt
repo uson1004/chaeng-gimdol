@@ -89,6 +89,31 @@ class SessionViewModel(
         }
     }
 
+    fun markOptionalNotApplicable() {
+        viewModelScope.launch {
+            state.value.items
+                .filter { !it.important && it.status == CheckStatus.Unchecked }
+                .forEach { item ->
+                    repository.setItemStatus(
+                        sessionId,
+                        item.itemId,
+                        CheckStatus.NotApplicable,
+                    )
+                }
+            _state.update { current ->
+                current.copy(
+                    items = current.items.map { item ->
+                        if (!item.important && item.status == CheckStatus.Unchecked) {
+                            item.copy(status = CheckStatus.NotApplicable)
+                        } else {
+                            item
+                        }
+                    },
+                )
+            }
+        }
+    }
+
     private fun updateStatus(
         itemId: Long,
         status: CheckStatus,

@@ -1,6 +1,9 @@
 package com.yuseob.chaenggimdol.ui.session
 
+import com.yuseob.chaenggimdol.domain.FakeSessionRepository
 import com.yuseob.chaenggimdol.domain.sessionRepositoryWithUncheckedItems
+import com.yuseob.chaenggimdol.domain.session.CheckSession
+import com.yuseob.chaenggimdol.domain.session.CheckSessionItem
 import com.yuseob.chaenggimdol.domain.session.CheckStatus
 import com.yuseob.chaenggimdol.domain.session.CompleteCheckSessionUseCase
 import com.yuseob.chaenggimdol.location.FakeLocationSessionController
@@ -136,6 +139,49 @@ class SessionViewModelTest {
 
         assertEquals(
             listOf(CheckStatus.Packed, CheckStatus.Packed),
+            sessions.requireSession(1).items.map { it.status },
+        )
+    }
+
+    @Test
+    fun markOptionalNotApplicableSkipsOnlyOptionalUncheckedItems() = runTest(dispatcher) {
+        val sessions = FakeSessionRepository()
+        sessions.seed(
+            CheckSession(
+                id = 1,
+                startedAtMillis = 1_000L,
+                completedAtMillis = null,
+                reminderSent = false,
+                uncheckedCountAtCompletion = null,
+                items = listOf(
+                    CheckSessionItem(
+                        itemId = 1,
+                        name = "휴대폰",
+                        status = CheckStatus.Unchecked,
+                        important = true,
+                    ),
+                    CheckSessionItem(
+                        itemId = 2,
+                        name = "우산",
+                        status = CheckStatus.Unchecked,
+                        important = false,
+                    ),
+                ),
+            ),
+        )
+        val viewModel = SessionViewModel(
+            sessionId = 1,
+            repository = sessions,
+            completeSession = CompleteCheckSessionUseCase(sessions),
+            locationController = FakeLocationSessionController(),
+        )
+        advanceUntilIdle()
+
+        viewModel.markOptionalNotApplicable()
+        advanceUntilIdle()
+
+        assertEquals(
+            listOf(CheckStatus.Unchecked, CheckStatus.NotApplicable),
             sessions.requireSession(1).items.map { it.status },
         )
     }

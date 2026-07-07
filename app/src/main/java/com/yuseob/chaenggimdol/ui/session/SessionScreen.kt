@@ -39,6 +39,7 @@ fun SessionScreen(
     onTogglePacked: (Long) -> Unit,
     onNotApplicable: (Long) -> Unit,
     onMarkAllPacked: () -> Unit = {},
+    onMarkOptionalNotApplicable: () -> Unit = {},
     onRequestComplete: () -> Unit,
     onDismissIncomplete: () -> Unit,
     onConfirmComplete: () -> Unit,
@@ -115,6 +116,17 @@ fun SessionScreen(
                 ),
             ) {
                 Text("남은 물건 모두 챙김")
+            }
+            if (state.uncheckedOptionalCount > 0) {
+                OutlinedButton(
+                    onClick = onMarkOptionalNotApplicable,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                ) {
+                    Text("상황 따라 모두 해당 없음")
+                }
             }
         }
         SignalButton(
