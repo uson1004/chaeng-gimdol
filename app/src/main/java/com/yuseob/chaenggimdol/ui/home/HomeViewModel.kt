@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 
 data class HomeUiState(
     val activeItems: List<UserItem> = emptyList(),
+    val activeImportantCount: Int = 0,
+    val activeOptionalCount: Int = 0,
     val activeSessionId: Long? = null,
     val message: String? = null,
 )
@@ -52,6 +54,8 @@ class HomeViewModel(
             _state.update {
                 it.copy(
                     activeItems = items,
+                    activeImportantCount = items.count { item -> item.important },
+                    activeOptionalCount = items.count { item -> !item.important },
                     activeSessionId = sessionId,
                 )
             }

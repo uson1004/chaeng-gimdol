@@ -85,7 +85,7 @@ fun HomeScreen(
                 )
                 Text(
                     text = if (state.activeSessionId == null) {
-                        "알림과 출발 감지를 사용할 수 있어요. 중요한 물건부터 빠르게 확인해요."
+                        "꼭 확인 ${state.activeImportantCount}개 · 상황 따라 ${state.activeOptionalCount}개를 준비했어요."
                     } else {
                         "아직 미확인인 물건을 챙김 세션에서 이어서 확인할 수 있어요."
                     },
