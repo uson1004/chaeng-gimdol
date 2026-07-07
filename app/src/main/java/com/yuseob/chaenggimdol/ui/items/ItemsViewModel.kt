@@ -98,6 +98,7 @@ class ItemsViewModel(
                 )
             }.onSuccess {
                 editor.value = ""
+                editorImportant.value = true
                 editorCheckHint.value = ""
             }.onFailure {
                 error.value = "저장하지 못했어요. 다시 시도해 주세요."

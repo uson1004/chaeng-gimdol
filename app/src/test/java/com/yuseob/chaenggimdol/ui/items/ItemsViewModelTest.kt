@@ -84,6 +84,21 @@ class ItemsViewModelTest {
         )
         assertEquals(0, repository.writeCount)
     }
+
+    @Test
+    fun successfulSaveResetsEditorImportance() = runTest(dispatcher) {
+        val repository = FailingThenSuccessfulItemRepository().apply {
+            shouldFail = false
+        }
+        val viewModel = ItemsViewModel(repository)
+
+        viewModel.setEditorName("우산")
+        viewModel.setEditorImportant(false)
+        viewModel.saveEditor()
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.state.value.editorImportant)
+    }
 }
 
 private class RecordingItemRepository(
