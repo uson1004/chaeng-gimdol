@@ -56,13 +56,6 @@ fun SessionScreen(
             text = "잠깐! 놓고 가는 거 없지?",
             style = MaterialTheme.typography.headlineSmall,
         )
-        val uncheckedCount = state.items.count { it.status == CheckStatus.Unchecked }
-        val uncheckedImportantCount = state.items.count {
-            it.important && it.status == CheckStatus.Unchecked
-        }
-        val uncheckedOptionalCount = state.items.count {
-            !it.important && it.status == CheckStatus.Unchecked
-        }
         SignalCard(Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -70,13 +63,13 @@ fun SessionScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "${state.items.size - uncheckedCount} / ${state.items.size}개 확인",
+                    text = "${state.checkedCount} / ${state.items.size}개 확인",
                     style = MaterialTheme.typography.titleMedium,
                 )
-                SignalChip(text = "미확인 ${uncheckedCount}개")
+                SignalChip(text = "미확인 ${state.uncheckedCount}개")
             }
             Text(
-                text = "꼭 확인 ${uncheckedImportantCount}개 · 상황 따라 ${uncheckedOptionalCount}개 남음",
+                text = "꼭 확인 ${state.uncheckedImportantCount}개 · 상황 따라 ${state.uncheckedOptionalCount}개 남음",
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -99,7 +92,7 @@ fun SessionScreen(
                 onNotApplicable = onNotApplicable,
             )
         }
-        if (uncheckedCount > 0) {
+        if (state.uncheckedCount > 0) {
             SignalCard(Modifier.fillMaxWidth()) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(

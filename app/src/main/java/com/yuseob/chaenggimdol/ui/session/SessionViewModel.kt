@@ -17,7 +17,19 @@ data class SessionUiState(
     val items: List<CheckSessionItem> = emptyList(),
     val confirmIncompleteCount: Int? = null,
     val completed: Boolean = false,
-)
+) {
+    val uncheckedCount: Int
+        get() = items.count { it.status == CheckStatus.Unchecked }
+
+    val checkedCount: Int
+        get() = items.size - uncheckedCount
+
+    val uncheckedImportantCount: Int
+        get() = items.count { it.important && it.status == CheckStatus.Unchecked }
+
+    val uncheckedOptionalCount: Int
+        get() = items.count { !it.important && it.status == CheckStatus.Unchecked }
+}
 
 class SessionViewModel(
     private val sessionId: Long,

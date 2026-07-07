@@ -89,4 +89,34 @@ class SessionViewModelTest {
 
         assertEquals(1, controller.stopCount)
     }
+
+    @Test
+    fun stateCountsCheckedAndUncheckedItems() {
+        val state = SessionUiState(
+            sessionId = 1,
+            items = listOf(
+                com.yuseob.chaenggimdol.domain.session.CheckSessionItem(
+                    itemId = 1,
+                    name = "휴대폰",
+                    status = CheckStatus.Packed,
+                ),
+                com.yuseob.chaenggimdol.domain.session.CheckSessionItem(
+                    itemId = 2,
+                    name = "우산",
+                    status = CheckStatus.NotApplicable,
+                    important = false,
+                ),
+                com.yuseob.chaenggimdol.domain.session.CheckSessionItem(
+                    itemId = 3,
+                    name = "지갑",
+                    status = CheckStatus.Unchecked,
+                ),
+            ),
+        )
+
+        assertEquals(2, state.checkedCount)
+        assertEquals(1, state.uncheckedCount)
+        assertEquals(1, state.uncheckedImportantCount)
+        assertEquals(0, state.uncheckedOptionalCount)
+    }
 }
