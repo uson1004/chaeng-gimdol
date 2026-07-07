@@ -415,6 +415,7 @@ private fun SessionRoute(
         state = state,
         onTogglePacked = viewModel::togglePacked,
         onNotApplicable = viewModel::markNotApplicable,
+        onMarkAllPacked = viewModel::markAllPacked,
         onRequestComplete = viewModel::requestComplete,
         onDismissIncomplete = viewModel::dismissIncomplete,
         onConfirmComplete = viewModel::completeConfirmed,

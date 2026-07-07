@@ -68,6 +68,27 @@ class SessionViewModel(
         updateStatus(itemId, CheckStatus.NotApplicable)
     }
 
+    fun markAllPacked() {
+        viewModelScope.launch {
+            state.value.items
+                .filter { it.status == CheckStatus.Unchecked }
+                .forEach { item ->
+                    repository.setItemStatus(sessionId, item.itemId, CheckStatus.Packed)
+                }
+            _state.update { current ->
+                current.copy(
+                    items = current.items.map { item ->
+                        if (item.status == CheckStatus.Unchecked) {
+                            item.copy(status = CheckStatus.Packed)
+                        } else {
+                            item
+                        }
+                    },
+                )
+            }
+        }
+    }
+
     private fun updateStatus(
         itemId: Long,
         status: CheckStatus,

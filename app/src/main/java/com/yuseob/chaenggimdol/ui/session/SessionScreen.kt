@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,6 +38,7 @@ fun SessionScreen(
     state: SessionUiState,
     onTogglePacked: (Long) -> Unit,
     onNotApplicable: (Long) -> Unit,
+    onMarkAllPacked: () -> Unit = {},
     onRequestComplete: () -> Unit,
     onDismissIncomplete: () -> Unit,
     onConfirmComplete: () -> Unit,
@@ -104,6 +106,15 @@ fun SessionScreen(
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
+            }
+            OutlinedButton(
+                onClick = onMarkAllPacked,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.secondary,
+                ),
+            ) {
+                Text("남은 물건 모두 챙김")
             }
         }
         SignalButton(

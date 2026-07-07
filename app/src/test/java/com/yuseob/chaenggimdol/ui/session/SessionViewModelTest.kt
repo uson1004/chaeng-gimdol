@@ -119,4 +119,24 @@ class SessionViewModelTest {
         assertEquals(1, state.uncheckedImportantCount)
         assertEquals(0, state.uncheckedOptionalCount)
     }
+
+    @Test
+    fun markAllPackedPacksRemainingUncheckedItems() = runTest(dispatcher) {
+        val sessions = sessionRepositoryWithUncheckedItems(2)
+        val viewModel = SessionViewModel(
+            sessionId = 1,
+            repository = sessions,
+            completeSession = CompleteCheckSessionUseCase(sessions),
+            locationController = FakeLocationSessionController(),
+        )
+        advanceUntilIdle()
+
+        viewModel.markAllPacked()
+        advanceUntilIdle()
+
+        assertEquals(
+            listOf(CheckStatus.Packed, CheckStatus.Packed),
+            sessions.requireSession(1).items.map { it.status },
+        )
+    }
 }
