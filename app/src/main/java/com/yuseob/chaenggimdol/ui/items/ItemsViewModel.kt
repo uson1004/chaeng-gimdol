@@ -13,6 +13,9 @@ import kotlinx.coroutines.launch
 
 data class ItemsUiState(
     val items: List<UserItem> = emptyList(),
+    val totalCount: Int = 0,
+    val activeCount: Int = 0,
+    val activeImportantCount: Int = 0,
     val editorName: String = "",
     val editorImportant: Boolean = true,
     val editorCheckHint: String = "",
@@ -45,6 +48,9 @@ class ItemsViewModel(
     ) { items, name, metadata, message, canRetry ->
         ItemsUiState(
             items = items,
+            totalCount = items.size,
+            activeCount = items.count { it.active },
+            activeImportantCount = items.count { it.active && it.important },
             editorName = name,
             editorImportant = metadata.important,
             editorCheckHint = metadata.checkHint,

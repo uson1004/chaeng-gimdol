@@ -99,6 +99,24 @@ class ItemsViewModelTest {
 
         assertEquals(true, viewModel.state.value.editorImportant)
     }
+
+    @Test
+    fun stateSummarizesItemCounts() = runTest(dispatcher) {
+        val viewModel = ItemsViewModel(
+            RecordingItemRepository(
+                initial = listOf(
+                    UserItem(1, "휴대폰", "phone", important = true, active = true),
+                    UserItem(2, "우산", "umbrella", important = false, active = true),
+                    UserItem(3, "여권", "document", important = true, active = false),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        assertEquals(3, viewModel.state.value.totalCount)
+        assertEquals(2, viewModel.state.value.activeCount)
+        assertEquals(1, viewModel.state.value.activeImportantCount)
+    }
 }
 
 private class RecordingItemRepository(

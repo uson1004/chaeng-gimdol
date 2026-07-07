@@ -50,10 +50,9 @@ fun ItemsScreen(
             style = MaterialTheme.typography.headlineSmall,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            SignalChip(text = "매일", selected = true)
-            SignalChip(text = "업무")
-            SignalChip(text = "날씨")
-            SignalChip(text = "기타")
+            SignalChip(text = "전체 ${state.totalCount}개", selected = true)
+            SignalChip(text = "사용 ${state.activeCount}개")
+            SignalChip(text = "꼭 확인 ${state.activeImportantCount}개")
         }
         OutlinedTextField(
             value = state.editorName,
