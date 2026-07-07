@@ -126,6 +126,29 @@ class HomeViewModelTest {
         assertEquals(1, viewModel.state.value.activeOptionalCount)
     }
 
+    @Test
+    fun activeItemsListShowsImportantItemsFirst() = runTest(dispatcher) {
+        val sessions = FakeSessionRepository()
+        val viewModel = HomeViewModel(
+            itemRepository = FakeItemRepository(
+                listOf(
+                    UserItem(1, "우산", "umbrella", important = false, active = true),
+                    UserItem(2, "휴대폰", "phone", important = true, active = true),
+                ),
+            ),
+            sessionRepository = sessions,
+            startCheckSession = StartCheckSessionUseCase(sessions),
+            locationController = FakeLocationSessionController(),
+            canStartTracking = { false },
+        )
+        advanceUntilIdle()
+
+        assertEquals(
+            listOf("휴대폰", "우산"),
+            viewModel.state.value.activeItems.map { it.name },
+        )
+    }
+
 }
 
 private class FakeItemRepository(

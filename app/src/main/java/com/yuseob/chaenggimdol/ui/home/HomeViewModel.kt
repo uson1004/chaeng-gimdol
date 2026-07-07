@@ -49,7 +49,9 @@ class HomeViewModel(
             itemRepository.observeItems(),
             sessionRepository.observeActive(),
         ) { items, session ->
-            items.filter { it.active } to session?.id
+            items
+                .filter { it.active }
+                .sortedByDescending { it.important } to session?.id
         }.onEach { (items, sessionId) ->
             _state.update {
                 it.copy(
