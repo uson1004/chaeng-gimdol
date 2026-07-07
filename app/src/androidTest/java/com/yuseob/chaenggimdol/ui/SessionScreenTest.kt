@@ -7,11 +7,13 @@ import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.yuseob.chaenggimdol.domain.session.CheckSessionItem
 import com.yuseob.chaenggimdol.domain.session.CheckStatus
 import com.yuseob.chaenggimdol.ui.session.SessionScreen
 import com.yuseob.chaenggimdol.ui.session.SessionUiState
 import org.junit.Rule
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SessionScreenTest {
@@ -113,5 +115,45 @@ class SessionScreenTest {
             .onNode(hasContentDescription("휴대폰 해당 없음"))
             .assertIsDisplayed()
             .assertHasClickAction()
+    }
+
+    @Test
+    fun bulkActionsAreReachableWhenItemsRemain() {
+        var markedAll = false
+        var skippedOptional = false
+        compose.setContent {
+            SessionScreen(
+                state = SessionUiState(
+                    sessionId = 1,
+                    items = listOf(
+                        CheckSessionItem(
+                            itemId = 1,
+                            name = "휴대폰",
+                            status = CheckStatus.Unchecked,
+                            important = true,
+                        ),
+                        CheckSessionItem(
+                            itemId = 2,
+                            name = "우산",
+                            status = CheckStatus.Unchecked,
+                            important = false,
+                        ),
+                    ),
+                ),
+                onTogglePacked = {},
+                onNotApplicable = {},
+                onMarkAllPacked = { markedAll = true },
+                onMarkOptionalNotApplicable = { skippedOptional = true },
+                onRequestComplete = {},
+                onDismissIncomplete = {},
+                onConfirmComplete = {},
+            )
+        }
+
+        compose.onNodeWithText("남은 물건 모두 챙김").performClick()
+        compose.onNodeWithText("상황 따라 모두 해당 없음").performClick()
+
+        assertTrue(markedAll)
+        assertTrue(skippedOptional)
     }
 }

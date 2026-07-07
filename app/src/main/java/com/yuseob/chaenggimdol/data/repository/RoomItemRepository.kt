@@ -35,7 +35,8 @@ private fun UserItemEntity.toDomain() = UserItem(
 
 private fun UserItem.toEntity() = UserItemEntity(
     id = id,
-    name = name,
+    name = name.trim(),
+    normalizedName = name.trim().lowercase(),
     category = category,
     important = important,
     active = active,
