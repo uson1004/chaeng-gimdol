@@ -77,6 +77,11 @@ class ItemsViewModel(
             error.value = "물건 이름을 입력해 주세요."
             return
         }
+        if (state.value.items.any { it.name.equals(name, ignoreCase = true) }) {
+            error.value = "이미 등록된 물건이에요."
+            retryAvailable.value = false
+            return
+        }
 
         viewModelScope.launch {
             retryAvailable.value = false

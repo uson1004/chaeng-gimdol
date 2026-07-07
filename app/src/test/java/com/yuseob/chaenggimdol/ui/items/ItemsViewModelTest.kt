@@ -65,10 +65,31 @@ class ItemsViewModelTest {
         assertEquals("", viewModel.state.value.editorName)
         assertEquals(1, repository.savedItems.size)
     }
+
+    @Test
+    fun duplicateNameIsRejectedBeforeRepositoryWrite() = runTest(dispatcher) {
+        val repository = RecordingItemRepository(
+            initial = listOf(UserItem(1, "휴대폰", "phone")),
+        )
+        val viewModel = ItemsViewModel(repository)
+        advanceUntilIdle()
+
+        viewModel.setEditorName(" 휴대폰 ")
+        viewModel.saveEditor()
+        advanceUntilIdle()
+
+        assertEquals(
+            "이미 등록된 물건이에요.",
+            viewModel.state.value.errorMessage,
+        )
+        assertEquals(0, repository.writeCount)
+    }
 }
 
-private class RecordingItemRepository : ItemRepository {
-    private val items = MutableStateFlow<List<UserItem>>(emptyList())
+private class RecordingItemRepository(
+    initial: List<UserItem> = emptyList(),
+) : ItemRepository {
+    private val items = MutableStateFlow(initial)
     var writeCount = 0
 
     override fun observeItems(): Flow<List<UserItem>> = items
