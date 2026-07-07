@@ -63,6 +63,8 @@ class ItemsViewModelTest {
         advanceUntilIdle()
 
         assertEquals("", viewModel.state.value.editorName)
+        assertEquals(null, viewModel.state.value.errorMessage)
+        assertEquals(false, viewModel.state.value.retryAvailable)
         assertEquals(1, repository.savedItems.size)
     }
 

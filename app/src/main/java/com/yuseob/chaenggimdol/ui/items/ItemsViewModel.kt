@@ -106,6 +106,8 @@ class ItemsViewModel(
                 editor.value = ""
                 editorImportant.value = true
                 editorCheckHint.value = ""
+                error.value = null
+                retryAvailable.value = false
             }.onFailure {
                 error.value = "저장하지 못했어요. 다시 시도해 주세요."
                 retryAvailable.value = true
