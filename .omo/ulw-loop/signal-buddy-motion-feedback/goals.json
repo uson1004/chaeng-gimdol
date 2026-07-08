@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "createdAt": "2026-07-07T13:53:34.254Z",
+  "updatedAt": "2026-07-07T13:59:41.683Z",
+  "briefPath": ".omo/ulw-loop/signal-buddy-motion-feedback/brief.md",
+  "goalsPath": ".omo/ulw-loop/signal-buddy-motion-feedback/goals.json",
+  "ledgerPath": ".omo/ulw-loop/signal-buddy-motion-feedback/ledger.jsonl",
+  "codexGoalMode": "aggregate",
+  "goals": [
+    {
+      "id": "G001-implement-the-most-useful-design-ski",
+      "title": "Implement the most useful design-skill combination for ChaenggimDol:...",
+      "objective": "Implement the most useful design-skill combination for ChaenggimDol: Compose-native pseudo-3D Signal Buddy character improvement plus accessible in-app Snackbar feedback foundation. Constraints: Android-only local-first Phase 1; no backend, FCM, LOST112, weather, Bluetooth tags, background location, raw coordinate persistence, real 3D engine, Rive, Lottie dependency unless proven necessary. Follow docs/DESIGN.md Signal Buddy tokens. Preserve decorative Buddy TalkBack silence. Add failing-first tests before production edits. Verify with Gradle tests where possible and report any environment blocker.",
+      "status": "pending",
+      "successCriteria": [
+        {
+          "id": "C001",
+          "scenario": "happy path for: Implement the most useful design-skill combination for ChaenggimDol: Compose-...",
+          "userModel": "happy",
+          "expectedEvidence": "Replace via revise_criterion with observable happy-path proof for goal 1.",
+          "essential": true,
+          "capturedEvidence": "RED: :app:compileDebugAndroidTestKotlin failed on missing BuddyDepth/SignalSnackbarHost; GREEN: same task passed after implementation; cleanup: no long-running process spawned; Node child_process exited",
+          "status": "pass",
+          "capturedAt": "2026-07-07T13:59:41.624Z"
+        },
+        {
+          "id": "C002",
+          "scenario": "edge case (boundary/empty/malformed)",
+          "userModel": "edge",
+          "expectedEvidence": "Replace via revise_criterion with boundary or malformed-input proof for: Implement the most useful design-skill combination for ChaenggimDol: Compose-....",
+          "essential": true,
+          "capturedEvidence": "Regression checks passed: ./gradlew testDebugUnitTest, ./gradlew lintDebug, ./gradlew assembleDebug; cleanup: Gradle processes exited",
+          "status": "pass",
+          "capturedAt": "2026-07-07T13:59:41.655Z"
+        },
+        {
+          "id": "C003",
+          "scenario": "regression: adjacent surface still works",
+          "userModel": "regression",
+          "expectedEvidence": "Replace via revise_criterion with regression proof for neighboring behavior after: Implement the most useful design-skill combination for ChaenggimDol: Compose-....",
+          "essential": false,
+          "capturedEvidence": "./gradlew connectedDebugAndroidTest packaged app/test APKs then failed with DeviceException: No connected devices; cleanup: no device/emulator session started",
+          "status": "blocked",
+          "capturedAt": "2026-07-07T13:59:41.683Z",
+          "notes": "Real-device instrumentation and visual surface QA blocked because no connected Android device/emulator is available in this environment."
+        }
+      ],
+      "attempt": 0,
+      "createdAt": "2026-07-07T13:53:34.254Z",
+      "updatedAt": "2026-07-07T13:59:41.683Z"
+    }
+  ],
+  "codexObjective": "Complete the durable ulw-loop plan in .omo/ulw-loop/signal-buddy-motion-feedback/goals.json, including later accepted/appended stories, under the original brief constraints; use .omo/ulw-loop/signal-buddy-motion-feedback/ledger.jsonl as the audit trail."
+}
